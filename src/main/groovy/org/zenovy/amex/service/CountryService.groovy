@@ -20,12 +20,13 @@ class CountryService {
 	 * @return
 	 */
 	List<CountryResource> currencyByCountry(String countryName){
+		
+		def normalizedCountryName = countryName.replaceAll('_', ' ')
 	
 		LOG.debug("Retrieve currency by country name => {}", countryName)
 		
-		String xml = client.currencyByCountryName(countryName).getCurrencyByCountryResult
-		
-//		LOG.debug("For country{} got response {}", countryName, xml)
+		String xml = client.currencyByCountryName(
+			normalizedCountryName).getCurrencyByCountryResult
 		
 		def root = new XmlSlurper().parseText(xml)
 		root.Table.inject([]){result, table->

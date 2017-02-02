@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.core.io.Resource
+import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
@@ -37,23 +38,35 @@ class CountryControllerSpec extends Specification{
 	private Resource xml
 	
 	@Autowired @Named('countryJsonPayload')
-	private Resource json
+	private Resource json	
+	
+	@Shared CountryResource usa = new CountryResource(name: 'United States',
+		countryCode: 'us', currency: 'Dollar', currencyCode: 'USD')
 	
 	def setup() {
 		mockMvc = webAppContextSetup(webCtx).build()
-	}
-		
-	private CountryResource usa = new CountryResource(name: 'United States',
-		countryCode: 'us', currency: 'Dollar', currencyCode: 'USD')	
+	}	
 	
 	def 'verify USA currency info as JSON payload'(){
 		given:
-			countryService.currencyByCountry("United_States") >> new CountryDataSet(dataSet: [usa]) 
-
+			countryService.currencyByCountry("United_States") >> new CountryDataSet(dataSet: [usa])
+		
 		expect:
-			mockMvc.perform(get('/country/United_States'))
+			mockMvc.perform(get('/country/United_States')
+				.header('Accept', MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk())
 				.andExpect(content().string(json.file.text))
+	}
+	
+	def 'verify USA currency info as XML payload'(){
+		given:
+			countryService.currencyByCountry("United_States") >> new CountryDataSet(dataSet: [usa])
+		
+		expect:
+			mockMvc.perform(get('/country/United_States').
+				header('Accept', MediaType.APPLICATION_XML_VALUE))				
+				.andExpect(status().isOk())
+				.andExpect(content().string(xml.file.text))
 	}
 	
 }

@@ -15,6 +15,8 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
 import org.zenovy.amex.config.CustomConfigurationTest
+import org.zenovy.amex.service.CountryResource
+import org.zenovy.amex.service.CountryService
 
 import spock.lang.Shared
 import spock.lang.Specification
@@ -35,11 +37,37 @@ class CountryControllerSpec extends Specification{
 	@Autowired @Named('countryJsonPayload')
 	private Resource json	
 	
+	CountryResource usa = new CountryResource(name: 'United States',
+		 countryCode: 'us', currency: 'Dollar', currencyCode: 'USD')
+	
 	def setup() {
 		mockMvc = webAppContextSetup(webCtx).build()
 	}	
 	
-	def 'verify USA currency info as JSON payload'(){
+	def 'verify country service returns appropriate data'(){
+		given:
+			def countryService = Mock(CountryService)
+			def controller = new CountryController(countryService: countryService)
+			
+		when: 'retrun type must an object of type CountryDataSet'			
+			countryDataSet = controller.getCurrencyByCountry(countryName)
+	
+		then: 'verify interaction with mocked service'			
+		    1 * countryService.currencyByCountry(countryName) >> [usa]
+			countryDataSet.dataSet[0].with{
+				name == 'United States'
+				countryCode == 'us'
+				currency == 'Dollar'
+				currencyCode == 'USD'
+			}
+			
+		where:
+			countryName = 'United_States'
+			countryDataSet = new CountryDataSet()
+	}
+	
+	def 'Integration test to verify USA currency info as JSON payload'(){	
+		
 		expect:
 			mockMvc.perform(get('/country/United_States')
 				.header('Accept', MediaType.APPLICATION_JSON_VALUE))
@@ -47,7 +75,8 @@ class CountryControllerSpec extends Specification{
 				.andExpect(content().string(json.file.text))
 	}
 	
-	def 'verify USA currency info as XML payload'(){
+	def 'integration test to verify USA currency info as XML payload'(){
+		
 		expect:
 			mockMvc.perform(get('/country/United_States').
 				header('Accept', MediaType.APPLICATION_XML_VALUE))				

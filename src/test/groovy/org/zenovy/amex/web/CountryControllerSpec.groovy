@@ -15,8 +15,6 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
 import org.zenovy.amex.config.CustomConfigurationTest
-import org.zenovy.amex.service.CountryResource
-import org.zenovy.amex.service.CountryService
 
 import spock.lang.Shared
 import spock.lang.Specification
@@ -30,9 +28,6 @@ class CountryControllerSpec extends Specification{
 
 	@Autowired
 	WebApplicationContext webCtx
-
-	@Autowired
-	private CountryService countryService	
 	
 	@Autowired @Named('countryXmlPayload')
 	private Resource xml
@@ -40,17 +35,11 @@ class CountryControllerSpec extends Specification{
 	@Autowired @Named('countryJsonPayload')
 	private Resource json	
 	
-	@Shared CountryResource usa = new CountryResource(name: 'United States',
-		countryCode: 'us', currency: 'Dollar', currencyCode: 'USD')
-	
 	def setup() {
 		mockMvc = webAppContextSetup(webCtx).build()
 	}	
 	
 	def 'verify USA currency info as JSON payload'(){
-		given:
-			countryService.currencyByCountry("United_States") >> new CountryDataSet(dataSet: [usa])
-		
 		expect:
 			mockMvc.perform(get('/country/United_States')
 				.header('Accept', MediaType.APPLICATION_JSON_VALUE))
@@ -59,9 +48,6 @@ class CountryControllerSpec extends Specification{
 	}
 	
 	def 'verify USA currency info as XML payload'(){
-		given:
-			countryService.currencyByCountry("United_States") >> new CountryDataSet(dataSet: [usa])
-		
 		expect:
 			mockMvc.perform(get('/country/United_States').
 				header('Accept', MediaType.APPLICATION_XML_VALUE))				

@@ -15,10 +15,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.web.context.WebApplicationContext
 import org.zenovy.amex.config.CustomConfigurationTest
-import org.zenovy.amex.service.AirportResource
-import org.zenovy.amex.service.AirportService
 
-import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -32,31 +29,17 @@ class AirportControllerSpec extends Specification{
 	@Autowired
 	WebApplicationContext webCtx
 
-	@Autowired
-	private AirportService airportService	
-	
 	@Autowired @Named('airportXmlPayload')
 	private Resource xml
 	
 	@Autowired @Named('airportJsonPayload')
-	private Resource json	
-	
-	@Shared AirportResource jfk = new AirportResource(
-		airportCode: 'JFK', cityOrAirportName: 'NEW YORK NY/NEWARK KENNEDY', country: 'United States',
-		countryAbbrviation: 'US', countryCode: '22', runwayLengthFeet: '14572', runwayElevationFeet: '13',
-		latitudeDegree: '40', latitudeMinute: '38', latitudeSecond: '0', latitudeNpeerS: 'N',
-		longitudeDegree: '73', longitudeMinute: '47', longitudeSeconds: '0', longitudeEperW: 'W',
-		GMTOffset: '5'
-	)
+	private Resource json
 	
 	def setup() {
 		mockMvc = webAppContextSetup(webCtx).build()
 	}	
 	
-	def 'verify airport info as JSON payload'(){
-		given:
-			airportService.airportInfoByAirportCode('JFK') >> new AirportDataSet(dataSet: [jfk])
-		
+	def 'verify airport info as JSON payload'(){		
 		expect:
 			mockMvc.perform(get('/airport/JFK')
 				.header('Accept', MediaType.APPLICATION_JSON_VALUE))
@@ -65,9 +48,6 @@ class AirportControllerSpec extends Specification{
 	}
 	
 	def 'verify airport info as XML payload'(){
-		given:
-			airportService.airportInfoByAirportCode('JFK') >> new CountryDataSet(dataSet: [jfk])
-		
 		expect:
 			mockMvc.perform(get('/airport/JFK').
 				header('Accept', MediaType.APPLICATION_XML_VALUE))				

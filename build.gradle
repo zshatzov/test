@@ -41,7 +41,10 @@ dependencies {
 	runtime group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.22'
 	jaxb "com.sun.xml.bind:jaxb-xjc:2.1.7"
 	providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
+	testCompile group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3'
+	testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testRuntime group: 'cglib', name: 'cglib-nodep', version: '3.2.4'
 }
 
 task genAirportInfoModel {
